@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Diario - Registro</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
+    form { display: flex; flex-direction: column; gap: 10px; }
+    label { font-weight: bold; }
+    input, textarea, button { padding: 8px; font-size: 14px; }
+    button { background-color: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
+    button:hover { background-color: #218838; }
+    a { color: #007bff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <h2>Nuevo Registro Diario</h2>
+  
+  <form id="formRegistro">
+    <label for="inputAnimales">Animales:</label>
+    <input type="number" id="inputAnimales" required placeholder="Número de animales">
+
+    <label for="inputComida">Comida (kg):</label>
+    <input type="number" id="inputComida" step="0.1" required placeholder="Cantidad en kg">
+
+    <label for="inputAgua">Agua (L):</label>
+    <input type="number" id="inputAgua" step="0.1" required placeholder="Cantidad en litros">
+
+    <label for="inputObservaciones">Observaciones:</label>
+    <textarea id="inputObservaciones" rows="3" placeholder="Notas o novedades del día"></textarea>
+
+    <button type="button" id="btnGuardar">Grabar Resultados</button>
+  </form>
+
+  <br><hr><br>
+  <a href="registros.html">Ver historial de registros guardados →</a>
+
+  <!-- Firebase JavaScript SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // Reemplaza estas credenciales con las de tu consola de Firebase
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      projectId: "TU_PROYECTO_ID",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById("btnGuardar").addEventListener("click", async () => {
+      const animales = document.getElementById("inputAnimales").value;
+      const comida = document.getElementById("inputComida").value;
+      const agua = document.getElementById("inputAgua").value;
+      const observaciones = document.getElementById("inputObservaciones").value;
+
+      if (!animales || !comida || !agua) {
+        alert("Por favor, rellena los campos principales.");
+        return;
+      }
+
+      const datos = {
+        fecha: new Date().toISOString().split('T')[0],
+        animales: Number(animales),
+        comida: Number(comida),
+        agua: Number(agua),
+        observaciones: observaciones,
+        fechaGuardado: serverTimestamp()
+      };
+
+      try {
+        await addDoc(collection(db, "registros_diarios"), datos);
+        alert("¡Registro guardado con éxito en la nube!");
+        document.getElementById("formRegistro").reset();
+      } catch (e) {
+        console.error("Error al guardar:", e);
+        alert("Error al guardar los datos en la nube.");
+      }
+    });
+  </script>
+</body>
+</html>
