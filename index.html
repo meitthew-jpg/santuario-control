@@ -1,90 +1,430 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control Diario - Registro</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
-    form { display: flex; flex-direction: column; gap: 10px; }
-    label { font-weight: bold; }
-    input, textarea, button { padding: 8px; font-size: 14px; }
-    button { background-color: #28a745; color: white; border: none; cursor: pointer; border-radius: 4px; }
-    button:hover { background-color: #218838; }
-    a { color: #007bff; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Granja - Control Diario</title>
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            padding-bottom: 60px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Navegación */
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: var(--primary-dark);
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #d1e7dd;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn.active {
+            color: white;
+            border-bottom: 3px solid #81c784;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Subpáginas */
+        .subpage {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .subpage.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .subpage h2 {
+            color: var(--primary);
+            border-bottom: 2px solid #e8f5e9;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checklist-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .check-item label {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .check-item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .count-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .count-input-group input[type="number"] {
+            width: 90px;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .notes-area {
+            margin-top: 1rem;
+        }
+
+        .notes-area label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #666;
+        }
+
+        .notes-area textarea {
+            width: 100%;
+            height: 70px;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .btn-save {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Resumen */
+        #summary-section {
+            margin-top: 2.5rem;
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .summary-date {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-card {
+            background: #f9fbf9;
+            border: 1px solid #e0ebd0;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .summary-card h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 0.6rem;
+            border-bottom: 1px solid #e0ebd0;
+            padding-bottom: 0.3rem;
+        }
+
+        .summary-card ul { list-style: none; }
+        .summary-card li { font-size: 0.95rem; margin-bottom: 0.4rem; }
+        .status-ok { color: #2e7d32; font-weight: bold; }
+        .status-pending { color: #c62828; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-  <h2>Nuevo Registro Diario</h2>
-  
-  <form id="formRegistro">
-    <label for="inputAnimales">Animales:</label>
-    <input type="number" id="inputAnimales" required placeholder="Número de animales">
+    <header>
+        <h1>Control Diario de Animales</h1>
+        <p>Registro de tareas de alimentación, agua y recuento</p>
+    </header>
 
-    <label for="inputComida">Comida (kg):</label>
-    <input type="number" id="inputComida" step="0.1" required placeholder="Cantidad en kg">
+    <nav>
+        <button class="tab-btn active" onclick="switchPage('cerdos')">🐖 Cerdos</button>
+        <button class="tab-btn" onclick="switchPage('yeguas')">🐎 Yeguas</button>
+        <button class="tab-btn" onclick="switchPage('ovejas')">🐑 Ovejas</button>
+        <button class="tab-btn" onclick="switchPage('cabras')">🐐 Cabras</button>
+    </nav>
 
-    <label for="inputAgua">Agua (L):</label>
-    <input type="number" id="inputAgua" step="0.1" required placeholder="Cantidad en litros">
+    <div class="container">
+        <form id="farm-form" onsubmit="event.preventDefault(); generateSummary();">
+            
+            <!-- CERDOS -->
+            <div id="page-cerdos" class="subpage active">
+                <h2>🐖 Control de Cerdos</h2>
+                <div class="checklist-group">
+                    <div class="check-item">
+                        <label for="cerdos-comida"><input type="checkbox" id="cerdos-comida"> Comida Suministrada</label>
+                    </div>
+                    <div class="check-item">
+                        <label for="cerdos-agua"><input type="checkbox" id="cerdos-agua"> Agua Comprobada / Limpia</label>
+                    </div>
+                    <div class="check-item">
+                        <label>Recuento de Animales</label>
+                        <div class="count-input-group">
+                            <input type="number" id="cerdos-recuento" min="0" placeholder="0">
+                            <span>animales</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-area">
+                    <label for="cerdos-notas">Observaciones:</label>
+                    <textarea id="cerdos-notas" placeholder="Ej: Animales sanos, limpieza realizada..."></textarea>
+                </div>
+            </div>
 
-    <label for="inputObservaciones">Observaciones:</label>
-    <textarea id="inputObservaciones" rows="3" placeholder="Notas o novedades del día"></textarea>
+            <!-- YEGUAS -->
+            <div id="page-yeguas" class="subpage">
+                <h2>🐎 Control de Yeguas</h2>
+                <div class="checklist-group">
+                    <div class="check-item">
+                        <label for="yeguas-comida"><input type="checkbox" id="yeguas-comida"> Comida Suministrada</label>
+                    </div>
+                    <div class="check-item">
+                        <label for="yeguas-agua"><input type="checkbox" id="yeguas-agua"> Agua Comprobada / Limpia</label>
+                    </div>
+                    <div class="check-item">
+                        <label>Recuento de Animales</label>
+                        <div class="count-input-group">
+                            <input type="number" id="yeguas-recuento" min="0" placeholder="0">
+                            <span>animales</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-area">
+                    <label for="yeguas-notas">Observaciones:</label>
+                    <textarea id="yeguas-notas" placeholder="Ej: Revisión de cascos, establos limpios..."></textarea>
+                </div>
+            </div>
 
-    <button type="button" id="btnGuardar">Grabar Resultados</button>
-  </form>
+            <!-- OVEJAS -->
+            <div id="page-ovejas" class="subpage">
+                <h2>🐑 Control de Ovejas</h2>
+                <div class="checklist-group">
+                    <div class="check-item">
+                        <label for="ovejas-comida"><input type="checkbox" id="ovejas-comida"> Comida Suministrada</label>
+                    </div>
+                    <div class="check-item">
+                        <label for="ovejas-agua"><input type="checkbox" id="ovejas-agua"> Agua Comprobada / Limpia</label>
+                    </div>
+                    <div class="check-item">
+                        <label>Recuento de Animales</label>
+                        <div class="count-input-group">
+                            <input type="number" id="ovejas-recuento" min="0" placeholder="0">
+                            <span>animales</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-area">
+                    <label for="ovejas-notas">Observaciones:</label>
+                    <textarea id="ovejas-notas" placeholder="Ej: Salida a pasto, estado general..."></textarea>
+                </div>
+            </div>
 
-  <br><hr><br>
-  <a href="registros.html">Ver historial de registros guardados →</a>
+            <!-- CABRAS -->
+            <div id="page-cabras" class="subpage">
+                <h2>🐐 Control de Cabras</h2>
+                <div class="checklist-group">
+                    <div class="check-item">
+                        <label for="cabras-comida"><input type="checkbox" id="cabras-comida"> Comida Suministrada</label>
+                    </div>
+                    <div class="check-item">
+                        <label for="cabras-agua"><input type="checkbox" id="cabras-agua"> Agua Comprobada / Limpia</label>
+                    </div>
+                    <div class="check-item">
+                        <label>Recuento de Animales</label>
+                        <div class="count-input-group">
+                            <input type="number" id="cabras-recuento" min="0" placeholder="0">
+                            <span>animales</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="notes-area">
+                    <label for="cabras-notas">Observaciones:</label>
+                    <textarea id="cabras-notas" placeholder="Ej: Ordeño completado, estado de corrales..."></textarea>
+                </div>
+            </div>
 
-  <!-- Firebase JavaScript SDKs -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+            <div class="actions">
+                <button type="submit" class="btn-save">💾 Grabar Resultados y Generar Resumen</button>
+            </div>
 
-    // Reemplaza estas credenciales con las de tu consola de Firebase
-    const firebaseConfig = {
-      apiKey: "TU_API_KEY",
-      authDomain: "TU_PROYECTO.firebaseapp.com",
-      projectId: "TU_PROYECTO_ID",
-      storageBucket: "TU_PROYECTO.appspot.com",
-      messagingSenderId: "TU_SENDER_ID",
-      appId: "TU_APP_ID"
-    };
+        </form>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        <div id="summary-section">
+            <h2>📋 Resumen General de Control</h2>
+            <div class="summary-date" id="summary-date-display"></div>
+            <div class="summary-grid" id="summary-cards"></div>
+        </div>
+    </div>
 
-    document.getElementById("btnGuardar").addEventListener("click", async () => {
-      const animales = document.getElementById("inputAnimales").value;
-      const comida = document.getElementById("inputComida").value;
-      const agua = document.getElementById("inputAgua").value;
-      const observaciones = document.getElementById("inputObservaciones").value;
+    <script>
+        function switchPage(pageId) {
+            document.querySelectorAll('.subpage').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
 
-      if (!animales || !comida || !agua) {
-        alert("Por favor, rellena los campos principales.");
-        return;
-      }
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
 
-      const datos = {
-        fecha: new Date().toISOString().split('T')[0],
-        animales: Number(animales),
-        comida: Number(comida),
-        agua: Number(agua),
-        observaciones: observaciones,
-        fechaGuardado: serverTimestamp()
-      };
+        function generateSummary() {
+            const animals = [
+                { id: 'cerdos', name: 'Cerdos', icon: '🐖' },
+                { id: 'yeguas', name: 'Yeguas', icon: '🐎' },
+                { id: 'ovejas', name: 'Ovejas', icon: '🐑' },
+                { id: 'cabras', name: 'Cabras', icon: '🐐' }
+            ];
 
-      try {
-        await addDoc(collection(db, "registros_diarios"), datos);
-        alert("¡Registro guardado con éxito en la nube!");
-        document.getElementById("formRegistro").reset();
-      } catch (e) {
-        console.error("Error al guardar:", e);
-        alert("Error al guardar los datos en la nube.");
-      }
-    });
-  </script>
+            const now = new Date();
+            const dateOptions = { 
+                weekday: 'long', year: 'numeric', month: 'long', 
+                day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+            };
+            
+            document.getElementById('summary-date-display').textContent = 
+                `Registro generado el: ${now.toLocaleDateString('es-ES', dateOptions)}`;
+
+            const summaryContainer = document.getElementById('summary-cards');
+            summaryContainer.innerHTML = ''; 
+
+            animals.forEach(animal => {
+                const comida = document.getElementById(`${animal.id}-comida`).checked;
+                const agua = document.getElementById(`${animal.id}-agua`).checked;
+                const recuento = document.getElementById(`${animal.id}-recuento`).value || '0';
+                const notas = document.getElementById(`${animal.id}-notas`).value.trim();
+
+                const card = document.createElement('div');
+                card.className = 'summary-card';
+                card.innerHTML = `
+                    <h3>${animal.icon} ${animal.name}</h3>
+                    <ul>
+                        <li><strong>Comida:</strong> ${comida ? '<span class="status-ok">✓ Completado</span>' : '<span class="status-pending">✗ Pendiente</span>'}</li>
+                        <li><strong>Agua:</strong> ${agua ? '<span class="status-ok">✓ Completado</span>' : '<span class="status-pending">✗ Pendiente</span>'}</li>
+                        <li><strong>Recuento:</strong> <strong>${recuento}</strong> animales</li>
+                        ${notas ? `<li><strong>Notas:</strong> <em>${notas}</em></li>` : ''}
+                    </ul>
+                `;
+                summaryContainer.appendChild(card);
+            });
+
+            const summarySection = document.getElementById('summary-section');
+            summarySection.style.display = 'block';
+            summarySection.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
