@@ -414,16 +414,27 @@
                 }))
             };
 
-            const history = JSON.parse(localStorage.getItem('farmControlHistory') || '[]');
-            history.unshift(entryData);
-            localStorage.setItem('farmControlHistory', JSON.stringify(history));
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('farmControlHistory') || '[]');
+                history.unshift(entryData);
+                localStorage.setItem('farmControlHistory', JSON.stringify(history));
+            } catch (e) {
+                alert('Atención: No se pudo guardar el registro en el almacenamiento local del navegador.');
+            }
 
             renderHistory();
             document.getElementById('farm-form').reset();
         }
 
         function renderHistory() {
-            const history = JSON.parse(localStorage.getItem('farmControlHistory') || '[]');
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('farmControlHistory') || '[]');
+            } catch (e) {
+                console.error('Error al cargar datos de localStorage', e);
+            }
+
             const container = document.getElementById('history-container');
             const summarySection = document.getElementById('summary-section');
 
@@ -472,7 +483,11 @@
 
         function clearHistory() {
             if (confirm('¿Estás seguro de que deseas borrar todo el historial de registros?')) {
-                localStorage.removeItem('farmControlHistory');
+                try {
+                    localStorage.removeItem('farmControlHistory');
+                } catch (e) {
+                    console.error('Error al borrar localStorage', e);
+                }
                 renderHistory();
             }
         }
